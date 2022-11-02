@@ -142,8 +142,7 @@ base_data[1][ori_clmns[2]]=base_data[1][ori_clmns[2]]-1.6153
 base_data[1][ori_clmns[3]]=base_data[1][ori_clmns[3]]-3.6843
 
 # %% file loop
-# for i in np.arange(2,len(ST_files)):
-for i in [5]:
+for i in np.arange(2,len(ST_files)):
 
 # channel identify
     fname=ST_files[i].split('_')
