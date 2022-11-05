@@ -16,13 +16,11 @@ from math import floor, ceil
 
 # %% functions
 def ct(cid):
-    color_table=[
-        (0.74, 0.11, 0.11), #filezilla red
-        (0.93, 0.56, 0.23), #matlab orange
-        (0.12, 0.44, 0.27), #excel green
-        (0.16, 0.34, 0.60), #word blue 
-        (0.86, 0.64, 0.49)  #ground
-                 ]
+    color_table=[(0.74, 0.11, 0.11), #filezilla red
+                 (0.93, 0.56, 0.23), #matlab orange
+                 (0.12, 0.44, 0.27), #excel green
+                 (0.16, 0.34, 0.60), #word blue 
+                 (0.86, 0.64, 0.49)]  #ground
 
     return color_table[cid]
 
@@ -87,25 +85,21 @@ def scat_plot(x,y,colormsk=[]):
     
     if len(np.unique(colormsk))==0:
         plt.plot(x_mean/x_std,y_mean/y_std,'*',c=ct(0),markersize=12,label='mean')  
+        
         cir1=plt.Circle((x_mean/x_std, y_mean/y_std), 1, facecolor='none',edgecolor=ct(1),linewidth=3,label='std range')
         cir2=plt.Circle((x_mean/x_std, y_mean/y_std), 2, facecolor='none',edgecolor=ct(2),linewidth=3,label='std*2 range')
         cir3=plt.Circle((x_mean/x_std, y_mean/y_std), 3, facecolor='none',edgecolor=ct(3),linewidth=3,label='std*3 range')
-
-        ax.add_patch(cir1)
-        ax.add_patch(cir2)
-        ax.add_patch(cir3)
+        ax.add_patch(cir1); ax.add_patch(cir2); ax.add_patch(cir3)
         
         plt.scatter(x/x_std, y/y_std, facecolors='none', edgecolors='k',alpha=0.7,s=50)
 
     else :
-        plt.plot(x_mean/x_std,y_mean/y_std,'*',c='k',markersize=12,label='mean')  
+        plt.plot(x_mean/x_std,y_mean/y_std,'*',c='k',markersize=12,label='mean')
+        
         cir1=plt.Circle((x_mean/x_std, y_mean/y_std), 1, facecolor='none',edgecolor='k',alpha=0.8,linewidth=1.5,label='std range')
         cir2=plt.Circle((x_mean/x_std, y_mean/y_std), 2, facecolor='none',edgecolor='k',linestyle='dashed',linewidth=1.5,label='std*2 range')
         cir3=plt.Circle((x_mean/x_std, y_mean/y_std), 3, facecolor='none',edgecolor='k',linestyle='dotted',linewidth=2.3,label='std*3 range')
-
-        ax.add_patch(cir1)
-        ax.add_patch(cir2)
-        ax.add_patch(cir3)
+        ax.add_patch(cir1); ax.add_patch(cir2); ax.add_patch(cir3)
 
         for color in np.unique(colormsk):
             plt.scatter(x[colormsk==color]/x_std, y[colormsk==color]/y_std, facecolors='none', edgecolors=color,alpha=0.5,s=40)
@@ -119,9 +113,6 @@ def scat_plot(x,y,colormsk=[]):
     ax.legend(fontsize=20) 
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
-    # ax.set_xlabel('dT',fontsize=20)
-    # ax.set_ylabel('dRH',fontsize=20)
-    # plt.title('dT-dRH scatter',fontsize=20)
 
     return ax, [[x_std, y_std], [x_mean, y_mean]]
 
@@ -274,7 +265,6 @@ plt.title('dRH distribution',fontsize=20)
 plt.savefig('dRH_dist', dpi=500) 
 
 # %% scatter color as batch
-
 colormsk=np.append(np.full(116,'b'),np.full(154,'r'))
 colormsk=colormsk[~np.isnan(gc_log['dT'])]
 
@@ -303,7 +293,6 @@ plt.savefig('dP-dT_scatter', dpi=300)
 # %% K-S test
 data=gc_log['dT']
 data=data[~np.isnan(data)]
-# counts, bins = np.histogram(data,bins=np.arange(floor(np.min(data)),ceil(np.max(data))+res,res))
 a=np.sort(data[~np.isnan(data)])    
 p = 1. * np.arange(len(a)) / float(len(a) - 1)  
 
@@ -314,9 +303,6 @@ norm_p=n.cdf(x)
 DD=n.cdf(x)-p
 D=max(abs(DD))
 critical=1.36/np.sqrt(len(data))
-
-# stats,p_val=kstest(p, 'norm')
-
 a=kstest(data, 'norm',args=(data.mean(),data.std()))
 critical=1.36/np.sqrt(len(data))
 
