@@ -16,13 +16,20 @@ from math import floor, ceil
 
 # %% functions
 def ct(cid):
-    color_table=[(0.74, 0.11, 0.11), #filezilla red
-                 (0.93, 0.56, 0.23), #matlab orange
-                 (0.12, 0.44, 0.27), #excel green
-                 (0.16, 0.34, 0.60), #word blue 
-                 (0.86, 0.64, 0.49)]  #ground
+    color_table=dict()
+    color_table['fr']=(0.74, 0.11, 0.11) #filezilla red
+    color_table['mo']=(0.93, 0.56, 0.23) #matlab orange
+    color_table['eg']=(0.12, 0.44, 0.27) #excel green
+    color_table['wb']=(0.16, 0.34, 0.60) #word blue 
+    color_table['gr']=(0.86, 0.64, 0.49) #ground
 
-    return color_table[cid]
+    cidx=list(color_table.keys())
+    if cid in color_table:
+        key=cid
+    else:
+        key=cidx[cid]
+
+    return color_table[key]
 
 def normalize(data):
     op=(data-np.nanmean(data))/np.nanstd(data)
@@ -188,7 +195,7 @@ for i in np.arange(2,len(ST_files)):
             crpd_data=crpd_data.append(base.iloc[tmp[0],:], ignore_index=True)
         else:
             continue
-         
+
     if len(crpd_data) <=120:
         base=base_data[1]
         base_dt=base['Time'].apply(lambda x: datetime.strptime(x,'%Y/%m/%d %H:%M:%S.%f'))
