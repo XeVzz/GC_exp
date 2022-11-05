@@ -15,6 +15,17 @@ from datetime import datetime
 from math import floor, ceil
 
 # %% functions
+def ct(cid):
+    color_table=[
+        (0.74, 0.11, 0.11), #filezilla red
+        (0.93, 0.56, 0.23), #matlab orange
+        (0.12, 0.44, 0.27), #excel green
+        (0.16, 0.34, 0.60), #word blue 
+        (0.86, 0.64, 0.49)  #ground
+                 ]
+
+    return color_table[cid]
+
 def normalize(data):
     op=(data-np.nanmean(data))/np.nanstd(data)
     
@@ -66,28 +77,40 @@ def df_plot(data):
 
     return ax
 
-def scat_plot(x,y):
+def scat_plot(x,y,colormsk=[]):
     x=x[~np.isnan(x)]; x_std=np.std(x); x_mean=np.mean(x)
     y=y[~np.isnan(y)]; y_std=np.std(y); y_mean=np.mean(y)
     
     fig,ax=plt.subplots(1,1,figsize=(15,13))
     ax.plot(np.arange(100)-50,np.full([100],0),'k:',linewidth=3,alpha=0.3)
     ax.plot(np.full([100],0),np.arange(100)-50,'k:',linewidth=3,alpha=0.3)
-
-    # plt.text(5, 7.5, 'dT_ref = '+str(np.nanstd(gc_log['dT'])), ha='left', wrap=True, size=14,weight='bold')
-    # plt.text(5, 8.5, 'dRH_ref = '+str(np.nanstd(gc_log['dRH'])), ha='left', wrap=True, size=14,weight='bold')
     
-    cir1=plt.Circle((x_mean/x_std, y_mean/y_std), 1, facecolor='none',edgecolor='g',linewidth=3,label='std range')
-    cir2=plt.Circle((x_mean/x_std, y_mean/y_std), 2, facecolor='none',edgecolor='b',linewidth=3,label='std*2 range')
-    cir3=plt.Circle((x_mean/x_std, y_mean/y_std), 3, facecolor='none',edgecolor='orange',linewidth=3,label='std*3 range')
+    if len(np.unique(colormsk))==0:
+        plt.plot(x_mean/x_std,y_mean/y_std,'*',c=ct(0),markersize=12,label='mean')  
+        cir1=plt.Circle((x_mean/x_std, y_mean/y_std), 1, facecolor='none',edgecolor=ct(1),linewidth=3,label='std range')
+        cir2=plt.Circle((x_mean/x_std, y_mean/y_std), 2, facecolor='none',edgecolor=ct(2),linewidth=3,label='std*2 range')
+        cir3=plt.Circle((x_mean/x_std, y_mean/y_std), 3, facecolor='none',edgecolor=ct(3),linewidth=3,label='std*3 range')
 
-    ax.add_patch(cir1)
-    ax.add_patch(cir2)
-    ax.add_patch(cir3)
+        ax.add_patch(cir1)
+        ax.add_patch(cir2)
+        ax.add_patch(cir3)
+        
+        plt.scatter(x/x_std, y/y_std, facecolors='none', edgecolors='k',alpha=0.7,s=50)
 
-    plt.plot(x_mean/x_std,y_mean/y_std,'*',c='r',markersize=12,label='mean')      
-    plt.scatter(x/x_std, y/y_std, facecolors='none', edgecolors='k',s=50)
+    else :
+        plt.plot(x_mean/x_std,y_mean/y_std,'*',c='k',markersize=12,label='mean')  
+        cir1=plt.Circle((x_mean/x_std, y_mean/y_std), 1, facecolor='none',edgecolor='k',alpha=0.8,linewidth=1.5,label='std range')
+        cir2=plt.Circle((x_mean/x_std, y_mean/y_std), 2, facecolor='none',edgecolor='k',linestyle='dashed',linewidth=1.5,label='std*2 range')
+        cir3=plt.Circle((x_mean/x_std, y_mean/y_std), 3, facecolor='none',edgecolor='k',linestyle='dotted',linewidth=2.3,label='std*3 range')
 
+        ax.add_patch(cir1)
+        ax.add_patch(cir2)
+        ax.add_patch(cir3)
+
+        for color in np.unique(colormsk):
+            plt.scatter(x[colormsk==color]/x_std, y[colormsk==color]/y_std, facecolors='none', edgecolors=color,alpha=0.5,s=40)
+            
+            
     ax.set_aspect('equal', 'box')
     ax.set_ylim(-10, 10)
     ax.set_xlim(-10, 10)
@@ -143,6 +166,7 @@ base_data[1][ori_clmns[3]]=base_data[1][ori_clmns[3]]-3.6843
 
 # %% file loop
 for i in np.arange(2,len(ST_files)):
+# for i in [5]:
 
 # channel identify
     fname=ST_files[i].split('_')
@@ -249,8 +273,13 @@ ax.set_xlabel('bias (%)',fontsize=15)
 plt.title('dRH distribution',fontsize=20)
 plt.savefig('dRH_dist', dpi=500) 
 
+# %% scatter color as batch
+
+colormsk=np.append(np.full(116,'b'),np.full(154,'r'))
+colormsk=colormsk[~np.isnan(gc_log['dT'])]
+
 # %% dT-dRH scatter
-ax,par=scat_plot(gc_log['dT'],gc_log['dRH'])
+ax,par=scat_plot(gc_log['dT'],gc_log['dRH'],colormsk)
 plt.text(-9.7, -7.3, 'dT_std = '+str(round(par[0][0],3))+' $^\circ$C',ha='left', size=16,weight='bold')
 plt.text(-9.7, -8, 'dRH_std = '+str(round(par[0][1],3))+' %', ha='left', size=16,weight='bold')
 plt.text(-9.7, -9, 'dT_mean = '+str(round(par[1][0],3))+' $^\circ$C', ha='left', size=16,weight='bold',color='r')
